@@ -17,11 +17,8 @@ Key findings include:
 - **Bulk RNA-Seq** from two different experimental paradigms (stimulated (human and mouse) & unstimulated (human))
 - **Single-nucleus multi-omics** of snRNA and snATAC data (human)
 
-## 📂 Repository Structure
-
 ## 📁 Repository Structure
 
-\`\`\`bash
 .
 ├── README.md                                # This file
 └── src/                                     # Analysis scripts
@@ -42,7 +39,8 @@ Key findings include:
         ├── 11_neuroestimator.R              # Deep learning-based tool to estimate neuroactivity
         ├── 12_final-manuscript-plots.R      # Generates plots used in the manuscript
         └── 98_manuscript-color-palettes.R   # Centralized color theme used across plots
-\`\`\`
+
+
 ## ⚙️ Setup
 
 ### Data Access
@@ -81,5 +79,3 @@ For questions, collaboration, or issues with the code, please contact:
 📧 muhammad-elsadany@uiowa.edu  
 🧪 Lab: [Michaelson lab]  
 🏛 Institution: [University of Iowa]
-
-EOF
