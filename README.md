@@ -18,7 +18,7 @@ Key findings include:
 - **Single-nucleus multi-omics** of snRNA and snATAC data (human)
 
 ## 📁 Repository Structure
-
+```
 .
 ├── README.md                                # This file
 └── src/                                     # Analysis scripts
@@ -39,7 +39,7 @@ Key findings include:
         ├── 11_neuroestimator.R              # Deep learning-based tool to estimate neuroactivity
         ├── 12_final-manuscript-plots.R      # Generates plots used in the manuscript
         └── 98_manuscript-color-palettes.R   # Centralized color theme used across plots
-        
+```
 
 ## ⚙️ Setup
 
