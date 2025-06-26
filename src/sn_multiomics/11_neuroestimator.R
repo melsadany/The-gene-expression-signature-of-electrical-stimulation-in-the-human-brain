@@ -203,47 +203,66 @@ ne.bs2 %>%
                            !RNA_sig&ATAC_sig ~ "ATAC only",
                            !RNA_sig&!ATAC_sig ~ "neither"),
          sig_3 = factor(sig_3, levels = c("RNA and ATAC", "RNA only", "ATAC only", "neither")),
-         sampleID_4 = factor(sampleID_4, levels = c(paste0("E",c(1:4)),"G1","G2"))) %>%
-  ggplot(aes(x = mean__ATAC, y = mean__RNA, color = sampleID_4, alpha = sig_3)) +
-  geom_point(position = position_dodge(width = 0.6), size =2.5) +
+         sampleID_4 = factor(sampleID_4, levels = c(paste0("E",c(1:4)),"G1","G2")),
+         celltype = factor(celltype, levels = c("Exc","Inh","Astro","Micro","Oligo","OPC"))) %>%
+  ggplot(aes(x = mean__ATAC, y = mean__RNA, 
+             # color = sampleID_4, 
+             color = celltype,
+             alpha = sig_3)) +
+  geom_point(aes(shape = sig_3),position = position_dodge(width = 0.6), size =2.5) +
   geom_vline(xintercept = 0, linetype = "dashed", linewidth = 0.2, color = "red") +
   geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.2, color = "red") +
   geom_errorbarh(aes(xmin = confin_min__ATAC, xmax = confin_max__ATAC),
                  linewidth = 0.8, height = 0, show.legend = F, position = position_dodge(width = 0.6)) +
   geom_errorbar(aes(ymin = confin_min__RNA, ymax = confin_max__RNA),
                 linewidth = 0.8, width = 0, show.legend = F, position = position_dodge(width = 0.6)) +
-  xlim(c(-0.1,0.2)) +
+  xlim(c(-0.075,0.2)) +
   # ylim(c(-0.15,0.15)) +
   ggforce::geom_ellipse(aes(x0 = center__ATAC, y0 = center__RNA,
                             a = diameter__ATAC, b = diameter__RNA,
                             angle = 0), 
                         linetype = 2, alpha = 0.3, size = 0.3, color = "grey") +
-  ggforce::geom_ellipse(aes(x0 = center__ATAC, y0 = center__RNA,
-                            a = diameter_90__ATAC, b = diameter_90__RNA,
-                            angle = 0), 
-                        linetype = 2, alpha = 0.3, size = 0.3, color = "grey") +
-  ggforce::geom_ellipse(aes(x0 = center__ATAC, y0 = center__RNA,
-                            a = diameter_85__ATAC, b = diameter_85__RNA,
-                            angle = 0), 
-                        linetype = 2, alpha = 0.3, size = 0.3, color = "grey") +
+  # ggforce::geom_ellipse(aes(x0 = center__ATAC, y0 = center__RNA,
+  #                           a = diameter_90__ATAC, b = diameter_90__RNA,
+  #                           angle = 0), 
+  #                       linetype = 2, alpha = 0.3, size = 0.3, color = "grey") +
+  # ggforce::geom_ellipse(aes(x0 = center__ATAC, y0 = center__RNA,
+  #                           a = diameter_85__ATAC, b = diameter_85__RNA,
+  #                           angle = 0), 
+  #                       linetype = 2, alpha = 0.3, size = 0.3, color = "grey") +
   # scale_alpha_manual(values = c(0.3,1), name = "significant in both RNA and ATAC predicted activity") +
   scale_alpha_manual(values = c("RNA and ATAC" = 1,
                                 "RNA only" = 0.4,
                                 "ATAC only" = 0.4,
                                 "neither" = 0.1), 
-                     name = "significance") +
-  scale_color_manual(values = sample.colors.2, name = "participant") +
-  facet_wrap(~celltype, nrow = 2) +
+                     guide = "legend",
+                     name = "Activity difference significance") +
+  scale_shape_manual(values = c("RNA and ATAC" = 0,
+                                "RNA only" = 2,
+                                "ATAC only" = 8,
+                                "neither" = 13),
+                     name = "Activity difference significance",
+                     guide = "legend") +
+  # scale_color_manual(values = sample.colors.2, name = "participant") +
+  scale_color_manual(values = cell.colors.2, name = "cell type", guide = "none") +
+  guides(alpha = guide_legend(override.aes = list(shape = c(0, 2, 8, 13)), nrow = 1)) +
+  ggh4x::facet_wrap2(~celltype, nrow = 2, scales = "free",
+                     strip = ggh4x::strip_themed(text_x = list(element_text(color = cell.colors.2[["Exc"]],size=12,face = "bold"),
+                                                               element_text(color = cell.colors.2[["Inh"]],size=12,face = "bold"),
+                                                               element_text(color = cell.colors.2[["Astro"]],size=12,face = "bold"),
+                                                               element_text(color = cell.colors.2[["Micro"]],size=12,face = "bold"),
+                                                               element_text(color = cell.colors.2[["Oligo"]],size=12,face = "bold"),
+                                                               element_text(color = cell.colors.2[["OPC"]],size=12,face = "bold")))) +
   labs(x = "mean difference in NEUROeSTIMator predicted activity (ATAC)",
        y = "mean difference in NEUROeSTIMator predicted activity (RNA)",
        caption = paste0("data points have error bars for the 95% CI\n",
-                        "the null distribution is showing the 85%, 90%, and 95% CIs")) +
+                        "the dashed ellipse show the null distribution with 95% CIs per cell type")) +
   bw.theme +
   theme(panel.grid.major = element_line(linewidth = 0.05),
         panel.grid.minor = element_line(linewidth = 0.05),
-        legend.box = "vertical", legend.spacing.y = unit(0.0005, units = "in")) +
-  guides(alpha = guide_legend(nrow = 1), color = guide_legend(nrow = 1))
-ggsave2("figs/manuscript_fig4-5.pdf", width = 9.5, height = 7)
+        legend.box = "vertical", legend.spacing.y = unit(0.0005, units = "in"))
+ggsave2("figs/keep/aligned/03_neuroestimator_0626.pdf", width = 9.5, height = 7)
+
 
 ################################################################################
 ################################################################################

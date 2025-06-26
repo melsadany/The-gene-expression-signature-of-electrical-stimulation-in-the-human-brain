@@ -20,6 +20,18 @@ abstract.colors.2 <- c("#86324A", "#333286", "#798632", "#4A9A3B", "#643264", "#
 ## celltype colors
 cell.colors <- c(antique.colors[c(1,5:7,3,4,2,8)])
 names(cell.colors) <- c("Astro", "Micro", "Oligo", "OPC", "Exc", "Inh", "Endo", "VLMC")
+# cell.colors.2 <- c("Astro" = "#ef7cef", "Micro" = "#e99633", "Oligo"= "#ff8eb9",
+#                    "OPC" = "#beb83b", "Exc"= "#42cf8e", "Inh" = "#a3afff")
+cell.colors.2 <- c("Astro" = "#C77CFF", "Micro" = "#FF7F00", "Oligo"= "#FF61CC",
+                   "OPC" = "#7CAE00", "Exc"= "#00BA38", "Inh" = "#619CFF")
+# 
+# c("#F8766D","#7CAE00","#00BFC4","#C77CFF","#FF61CC","#00BA38","#619CFF","#F564E3")
+# [1]  "#E41A1C" "#377EB8" "#4DAF4A" "#984EA3" "#FF7F00"
+# [6]  "#FFFF33" "#A65628" "#F781BF" "#999999" "#66C2A5"
+# [11] "#FC8D62" "#8DA0CB" "#E78AC3" "#A6D854" "#FFD92F"
+# [16] "#E5C494" "#B3B3B3" "#8DD3C7" "#FFFFB3" "#BEBADA"
+# [21] "#FB8072" "#80B1D3" "#FDB462" "#B3DE69" "#FCCDE5"
+# [26] "#D9D9D9"
 
 
 ## participant labels colors
