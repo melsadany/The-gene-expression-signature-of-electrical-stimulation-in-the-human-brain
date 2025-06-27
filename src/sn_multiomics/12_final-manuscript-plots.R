@@ -296,6 +296,31 @@ p.motif <- Signac::MotifPlot(atac.pb.so,
   bw.theme
 pdf("figs/keep/aligned/06_TF-motifs.pdf", width = 7, height = 5)
 p.motif;dev.off()
+
+
+inter.df.motif <- motif.all %>% 
+  filter(source=="global",p.adjust<0.05) %>% 
+  pivot_wider(names_from = RNA_predicted_cluster, 
+              values_from = p.adjust, id_cols = motif.name) %>% 
+  mutate_at(.vars = vars(-c(motif.name)), .funs = function(x) as.numeric(ifelse(x<0.05,T,F))) 
+inter.df.motif.long <- inter.df.motif %>%
+  pivot_longer(cols = -1) %>% filter(value == 1) %>%
+  pivot_wider(names_from = value, values_from = name) %>% rename("cl_list" = 2)
+p.upset.motif <- inter.df.motif.long %>%
+  ggplot(aes(x = cl_list)) +
+  geom_bar(width = 0.7) +
+  scale_x_upset() + 
+  geom_text(stat='count', aes(label=after_stat(count)), vjust=0, size = 2) +
+  geom_text(data = inter.df.motif.long %>% group_by(cl_list) %>% 
+              summarize(motif_names = paste(motif.name, collapse = "\n"), 
+                        motif_count = n()) %>% filter(motif_count<20),
+            aes(x = cl_list, y = motif_count +4,
+                label = motif_names), nudge_y = 3, angle = 0, hjust = 0.5, size = 1,vjust=0)+
+  labs(x = "", y="count") +
+  bw.theme
+pdf("figs/keep/aligned/05_upset-TF.pdf", width = 9, height = 5)
+p.upset.motif
+dev.off()
 ################################################################################
 ################################################################################
 ################################################################################
