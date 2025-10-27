@@ -172,14 +172,15 @@ ns.de.2 %>% mutate(cat = case_when(sig_both_cons ~ "DEG in both",
   scale_size_manual(values = c(0.1,1)) + scale_alpha_manual(values = c(0.1,1)) +
   scale_color_manual(values = c(palette.1[1:3],"grey"), name="") +
   labs(x = "lmmSeq coefficient for stimulation", y = expression("edgeR log"[2]~"(fold change)"),
-       caption = paste0("n(pairs): 6 (epilepsy:4, glioma:2)\n",
-                        "edgeR model:\n",
-                        "      combined: ~ dx + anesthesia + sexM + age + stimulation\n",
-                        "      epilepsy/glioma: ~ stimulation\n",
-                        "lmmSeq model:\n",
-                        "      combined: ~ stimulation + anesthesia + sexM + age + dx + (1|participant)\n",
-                        "      epilepsy/glioma: ~ stimulation + (1|participant)\n",
-                        "DEGs criteria:      (abs(logFC) > 1 | abs(coefficient) > 1) & FDR < 0.05")) +
+       # caption = paste0("n(pairs): 6 (epilepsy:4, glioma:2)\n",
+       #                  "edgeR model:\n",
+       #                  "      combined: ~ dx + anesthesia + sexM + age + stimulation\n",
+       #                  "      epilepsy/glioma: ~ stimulation\n",
+       #                  "lmmSeq model:\n",
+       #                  "      combined: ~ stimulation + anesthesia + sexM + age + dx + (1|participant)\n",
+       #                  "      epilepsy/glioma: ~ stimulation + (1|participant)\n",
+       #                  "DEGs criteria:      (abs(logFC) > 1 | abs(coefficient) > 1) & FDR < 0.05")
+       ) +
   bw.theme + guides(size="none",alpha="none")+
   theme(strip.text = element_text(size=14),
         axis.text=element_text(size=10),axis.title = element_text(size=17))
@@ -294,13 +295,41 @@ p.upset2 <- inter.df.long2 %>%
   scale_x_upset() + 
   scale_color_manual(values = cell.colors.2) +
   geom_text(stat='count', aes(label=after_stat(count)), vjust=0, size = 2) +
-  geom_text(data = inter.df.long2 %>% group_by(cl_list) %>% summarize(gene_names = paste(gene, collapse = ", "), gene_count = n()) %>% filter(gene_count<20),
+  geom_text(data = inter.df.long2 %>% group_by(cl_list) %>% summarize(gene_names =str_replace_all(paste0(paste(gene[1:min(length(gene),7)], collapse = ", "),
+                                                                                                         ifelse(length(gene)>7,paste0("\n",paste(gene[8:length(gene)], collapse = ", ")),"")),
+                                                                                                  ",NA",""), gene_count = n()) %>% filter(gene_count<20),
             aes(x = cl_list, y = gene_count +4,label = gene_names), 
-            nudge_y = 0, angle = 90, hjust = 0, size = 1.9,vjust=0.5)+
+            nudge_y = 0, angle = 90, hjust = 0, size = 2.3,vjust=0.5)+
   labs(x = "", y="count") +
   bw.theme
 p.upset2
 
+micro.t <- as.character(inter.df.long2 %>% filter(cl_list %in% list("Micro_human")) %>% select(gene) %>% unlist())
+# Create the table for micro genes
+library(gridExtra);library(grid)
+table_grob <- tableGrob(cbind(micro.t[1:38],micro.t[39:76],c(micro.t[77:112],"","")),
+                        theme = ttheme_minimal(
+                          base_size = 6,base_colour = "black",
+                          base_family = "sans",parse = FALSE,
+                          padding = unit(c(1, 1), "mm"),
+                          core = list(fg_params = list(hjust = 0, x = 0.1)),
+                          colhead = list(fg_params = list(fontface = "bold"))))
+table_grob <- gtable::gtable_add_grob(table_grob,
+  grobs = rectGrob(gp = gpar(fill = NA, lwd = 1.5)), 
+  t = 1, b = nrow(table_grob), l = 1, r = ncol(table_grob))
+table_grob <- gtable::gtable_add_rows(table_grob,heights = unit(0.2, "in"), pos = 0)
+table_grob <- gtable::gtable_add_grob(table_grob,textGrob("Microglia-specific genes", gp = gpar(fontsize = 8)),
+                                      t = 1, l = 1, r = ncol(table_grob))
+
+wrap_plots(table_grob,plot_spacer(),ncol=1,heights = c(1,0.2))
+wrap_plots(plot_spacer(),
+           # table_grob,
+           wrap_plots(table_grob,plot_spacer(),ncol=1,heights = c(1,0.2)),
+           plot_spacer(),p.upset2,nrow = 1,
+           widths = c(0.5,1,0.5,6))
+wrap_elements(full = table_grob) + p.upset2 +
+  plot_layout(widths = c(1, 6))
+p.upset2.full
 pdf("figs/keep/aligned/05_upset.pdf", width = 8, height = 5.5)
 p.upset2
 dev.off()
@@ -471,32 +500,32 @@ dev.off()
 ################################################################################
 ################################################################################
 ### cell gene markers
-DefaultAssay(int.samples.so) <- "RNA"
-cell.markers <- data.frame(celltype = c(rep("Exc",7), rep("Inh",10),rep("Astro",3),
-                                        rep("Micro",6),rep("OPC",3),rep("Oligo",2)),
-                           gene = c("SLC17A7","SATB2","RORB","CUX2","TLE4","NR4A2","SEMA3C",
-                                    "GAD1","GAD2","SOX6","PVALB","SST","VIP","LHX6","NDNF","CALB2","SULF1",
-                                    "AQP4","GJB6","FGFR3",
-                                    "CTSS","C1QB","CD11b","CD45","CX3CR1","TMEM119",
-                                    "CSPG4","PDGFRA","VCAN",
-                                    "MOG","MAG"))
-rna.data <- int.samples.so@assays$RNA$data[rownames(int.samples.so)%in%cell.markers$gene,] %>%as.matrix()%>%
-  as.data.frame() %>% rownames_to_column("gene") %>%
-  pivot_longer(cols = -c(gene), names_to = "cell", values_to = "RNA") %>%
-  inner_join(int.metadat.v2 %>% select(cell, RNA_predicted_cluster, sampleID)) %>%
-  inner_join(int.samples.so@assays$Gene.Activity$data[rownames(int.samples.so@assays$Gene.Activity$data)%in%cell.markers$gene,] %>%
-               as.matrix()%>%as.data.frame() %>% rownames_to_column("gene") %>%
-               pivot_longer(cols = -c(gene), names_to = "cell", values_to = "ATAC"))
-rna.data %>% left_join(cell.markers) %>% 
-  # filter(celltype == "Oligo") %>%
-  filter(gene %in% c("AQP4","SLC17A7", "GAD1", "C1QB","VCAN","MOG")) %>%
-  mutate(gene = factor(gene, levels = c("AQP4","SLC17A7","GAD1","C1QB","MOG" ,"VCAN"))) %>%
-  pivot_longer(cols = c(RNA, ATAC), names_to = "assay", values_to = "count") %>%
-  ggplot(aes(x = RNA_predicted_cluster, y = count, fill = RNA_predicted_cluster)) +
-  geom_violin(show.legend = F) + scale_fill_manual(values = cell.colors.2) +
-  ggh4x::facet_grid2(rows = vars(gene), cols = vars(assay),
-                     scales = "free") +
-  bw.theme + labs(x = "cell cluster")
+# DefaultAssay(int.samples.so) <- "RNA"
+# cell.markers <- data.frame(celltype = c(rep("Exc",7), rep("Inh",10),rep("Astro",3),
+#                                         rep("Micro",6),rep("OPC",3),rep("Oligo",2)),
+#                            gene = c("SLC17A7","SATB2","RORB","CUX2","TLE4","NR4A2","SEMA3C",
+#                                     "GAD1","GAD2","SOX6","PVALB","SST","VIP","LHX6","NDNF","CALB2","SULF1",
+#                                     "AQP4","GJB6","FGFR3",
+#                                     "CTSS","C1QB","CD11b","CD45","CX3CR1","TMEM119",
+#                                     "CSPG4","PDGFRA","VCAN",
+#                                     "MOG","MAG"))
+# rna.data <- int.samples.so@assays$RNA$data[rownames(int.samples.so)%in%cell.markers$gene,] %>%as.matrix()%>%
+#   as.data.frame() %>% rownames_to_column("gene") %>%
+#   pivot_longer(cols = -c(gene), names_to = "cell", values_to = "RNA") %>%
+#   inner_join(int.metadat %>% select(cell, RNA_predicted_cluster, sampleID)) %>%
+#   inner_join(int.samples.so@assays$Gene.Activity$data[rownames(int.samples.so@assays$Gene.Activity$data)%in%cell.markers$gene,] %>%
+#                as.matrix()%>%as.data.frame() %>% rownames_to_column("gene") %>%
+#                pivot_longer(cols = -c(gene), names_to = "cell", values_to = "ATAC"))
+# rna.data %>% left_join(cell.markers) %>% 
+#   # filter(celltype == "Oligo") %>%
+#   filter(gene %in% c("AQP4","SLC17A7", "GAD1", "C1QB","VCAN","MOG")) %>%
+#   mutate(gene = factor(gene, levels = c("AQP4","SLC17A7","GAD1","C1QB","MOG" ,"VCAN"))) %>%
+#   pivot_longer(cols = c(RNA, ATAC), names_to = "assay", values_to = "count") %>%
+#   ggplot(aes(x = RNA_predicted_cluster, y = count, fill = RNA_predicted_cluster)) +
+#   geom_violin(show.legend = F) + scale_fill_manual(values = cell.colors.2) +
+#   ggh4x::facet_grid2(rows = vars(gene), cols = vars(assay),
+#                      scales = "free") +
+#   bw.theme + labs(x = "cell cluster")
 
 pb <- read_rds("data/derivatives/manual-boostrapped-pseudobulk/RNA/all.rds")
 pb.atac <- read_rds("data/derivatives/manual-boostrapped-pseudobulk/MACS-GA/all.rds")
@@ -646,10 +675,19 @@ motif.all %>%
 ## wrap plots
 # run the neuroestimator plot and get it here
 ne.plot <- read_rds("figs/keep/aligned/03_neuroestimator_0919.rds")
-
 pdf("figs/keep/aligned/fig-03_V2.pdf", height = 14, width = 12)
 wrap_plots(wrap_plots(wrap_plots(plot_spacer(), p.umap, loli.rna,widths = c(1,1.4,0.7)), 
                       p.upset2, ne.plot, ncol = 1,heights = c(1,1.3,1.3))
+           ,p.volc.lmmseq, nrow = 1, widths = c(1.8,1))
+dev.off()
+
+pdf("figs/keep/aligned/fig-03_V3.pdf", height = 14, width = 12)
+wrap_plots(wrap_plots(wrap_plots(plot_spacer(), p.umap, loli.rna,widths = c(1,1.4,0.7)), 
+                      wrap_plots(wrap_plots(plot_spacer(),table_grob,plot_spacer(),ncol=1,
+                                            heights = c(0.2,1,0.2)),
+                                 p.upset2,nrow = 1,
+                                 widths = c(1,6)), 
+                      ne.plot, ncol = 1,heights = c(1,1.3,1.3))
            ,p.volc.lmmseq, nrow = 1, widths = c(1.8,1))
 dev.off()
 
