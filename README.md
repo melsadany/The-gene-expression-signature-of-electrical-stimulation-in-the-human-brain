@@ -1,8 +1,8 @@
-# 💡 The gene expression signature of electrical stimulation in the human brain – Multi-Omics Analysis
+# The gene expression signature of electrical stimulation in the human brain – Multi-Omics Analysis
 
 This repository contains analysis scripts and relevant code used for the integrative analysis of **single-nucleus multi-omics** (snRNA-seq + snATAC-seq) and **bulk RNA-seq** data to study the molecular effects of **direct electrical stimulation (DES)** in the **human brain**. The project focuses on identifying the **molecular signature** to DES and characterizing transcriptional and epigenomic changes at both bulk and single-cell resolution.
 
-## 🧠 Project Overview
+## Project Overview
 
 **Direct electrical stimulation (DES)** has long been used as a clinical tool to map brain function in neurosurgical settings. However, the molecular consequences of DES on the human brain remained largely unexplored. In this study, we use **state-of-the-art transcriptomic and epigenomic sequencing techniques** to investigate the **cell type-specific** and **bulk tissue** responses to DES.
 
@@ -12,12 +12,12 @@ Key findings include:
 - Application of a custom **deep learning model** to identify cell-type-specific molecular responses.
 
 
-## 🧬 Data Types
+## Data Types
 
 - **Bulk RNA-Seq** from two different experimental paradigms (stimulated (human and mouse) & unstimulated (human))
 - **Single-nucleus multi-omics** of snRNA and snATAC data (human)
 
-## 📁 Repository Structure
+## Repository Structure
 ```
 .
 ├── README.md                                # This file
@@ -41,20 +41,20 @@ Key findings include:
         └── 98_manuscript-color-palettes.R   # Centralized color theme used across plots
 ```
 
-## ⚙️ Setup
+## Setup
 
 ### Data Access
 The sequencing datasets used in this study are available via the NCBI Gene Expression Omnibus (GEO) under accession number:
-- 🔗 [GSE224952](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE224952)
+- [GSE224952](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE224952)
 This repository uses placeholder paths and dummy data where necessary.
 
-## 📊 Main Tools & Libraries
+## Main Tools & Libraries
 
 - **R / Bioconductor**: DESeq2, Seurat, Signac, ActivePathways, goSeq
 - **Deep learning models**: NEUROeSTIMator and DCA
 - **Cell Ranger (10x Genomics)**: Preprocessing of snRNA/snATAC data
 
-## 📈 Reproducibility
+## Reproducibility
 
 Final manuscript plots and color schemes:
 
@@ -63,19 +63,19 @@ Final manuscript plots and color schemes:
 
 Each script is standalone and modular. Input/output files are annotated inside the scripts. 
 
-## 🧾 Citation
+## Citation
 
 If you use or adapt this code, please cite the corresponding manuscript:
 
-> **[Title Placeholder]**  
-> *placeholder*, et al.  
-> *Journal Placeholder*, 2025.  
+> **The gene expression signature of electrical stimulation in the human brain**  
+> Snehajyoti Chatterjee, Muhammad Elsadany, Yann Vanrobaeys, Annie I Gleason, Brian J. Park, Shane A. Heiney, Ariane E. Rhone, Kirill V. Nourski, Budhaditya Basu, Utsav Mukherjee, Lucy Langmack, Christopher K. Kovach, Zsuzsanna Kocsis, Yukiko Kikuchi, Yaneri A. Ayala, Mark Bowren, Marco M. Hefti, Ethan Bahl, Kailin Yang, Jeremy D. Greenlee, Hiroto Kawasaki, Hiroyuki Oya, Matthew A. Howard III, Christopher I. Petkov, Thomas Nickl-Jockschat, Li-Chun Lin, Jacob J Michaelson, Ted Abel  
+> bioRxiv 2023.09.21.558812; doi: https://doi.org/10.1101/2023.09.21.558812 
 
-## 📬 Contact
+## Contact
 
 For questions, collaboration, or issues with the code, please contact:
 
 **Muhammad Elsadany**  
-📧 muhammad-elsadany@uiowa.edu  
-🧪 Lab: [Michaelson lab]  
-🏛 Institution: [University of Iowa]
+muhammad-elsadany@uiowa.edu  
+Michaelson lab
+University of Iowa
