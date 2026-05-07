@@ -52,7 +52,7 @@ ns.pm.genes <- readxl::read_xlsx("data/raw/downloaded/allen-ns-vs-pm.xlsx") %>%
   rename(logFC = 2, adj_pval = 6)
 ################################################################################
 # data from the epilepsy paper from Leo and Jake
-epi.spiking.genes <- readxl::read_xlsx("data/raw/downloaded/Leo-apilepsy-paper.xlsx")
+epi.spiking.genes <- readxl::read_xlsx("data/raw/downloaded/Leo-epilepsy-paper.xlsx")
 ################################################################################
 # konopka papers
 # mem biomarkers

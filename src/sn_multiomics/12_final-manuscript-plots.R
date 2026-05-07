@@ -333,6 +333,40 @@ p.upset2.full
 pdf("figs/keep/aligned/05_upset.pdf", width = 8, height = 5.5)
 p.upset2
 dev.off()
+
+
+## only bulk
+bulk.inter.df <- data.frame(gene = unique(c(bulk.human$gene, bulk.mouse$gene))) %>%
+  mutate(Bulk_human = as.numeric(gene %in% bulk.human$gene[bulk.human$sig]),
+         Bulk_mouse = as.numeric(gene %in% bulk.mouse$gene[bulk.mouse$sig]))
+bulk.inter.df.long <- bulk.inter.df %>%
+  pivot_longer(cols = -1) %>% filter(value == 1) %>%
+  pivot_wider(names_from = value, values_from = name) %>% rename("cl_list" = 2)
+## full supplementary version
+bulk.p.upset <- bulk.inter.df.long %>%
+  ggplot(aes(x = cl_list)) +
+  geom_bar(width = 0.7) +
+  scale_x_upset() + 
+  geom_text(stat='count', aes(label=after_stat(count)), vjust=0, size = 2) +
+  # geom_text(data = bulk.inter.df.long %>% group_by(cl_list) %>% 
+  #             summarize(gene_names = paste(gene, collapse = "\n"), gene_count = n()),
+  #           aes(x = cl_list, y = 0,label = gene_names), 
+  #           nudge_y = 0, hjust = 0.5,vjust=0, size = 0.5, angle=0)+
+  labs(x = "", y="count",
+       caption = paste0("DEGs criteria: abs(logFC)>0.2 & FDR < 0.05")) +
+  bw.theme
+pdf("figs/keep/aligned/05_upset-supp-bulk.pdf", width = 4, height = 6.5)
+bulk.p.upset
+dev.off()
+library(ggVennDiagram)
+ggVennDiagram(list(human = bulk.human$gene[bulk.human$sig],
+                   mouse = bulk.mouse$gene[bulk.mouse$sig]))+
+  scale_fill_gradient(low = redblu.col.2[2], high = redblu.col.2[1]) + 
+  my.guides +
+  bw.theme + theme(axis.text = element_blank(),axis.ticks = element_blank(),
+                   panel.border = element_blank(), axis.title = element_blank())
+
+
 ################################################################################
 ################################################################################
 ################################################################################
@@ -390,13 +424,20 @@ Idents(int.samples.so.filt) <- "cluster_stim"
 bs.cell.count <- read_csv("data/derivatives/manual-boostrapped-pseudobulk/counts.csv")
 source("src/utils/CoveragePlot_ME.R")
 p.ccl4.peaks <- CoveragePlot_ME(obj = CoveragePlot(int.samples.so.filt, region = "CCL4", 
-                                                   assay = "MACS3_peaks",
-                                                   extend.upstream = 2000, extend.downstream = 1000))
+                                                   assay = "MACS3_peaks",extend.upstream = 2000, extend.downstream = 1000))
 p.npas4.peaks <- CoveragePlot_ME(obj = CoveragePlot(int.samples.so.filt, region = "NPAS4", 
-                                                    assay = "MACS3_peaks",
-                                                    extend.upstream = 2000, extend.downstream = 1000))
-pdf("figs/keep/aligned/04_atac-peaks.pdf", width = 10, height = 10)
-wrap_plots(p.ccl4.peaks,p.npas4.peaks, nrow = 1)
+                                                    assay = "MACS3_peaks",extend.upstream = 2000, extend.downstream = 1000))
+p.egr1.peaks <- CoveragePlot_ME(obj = CoveragePlot(int.samples.so.filt, region = "EGR1", 
+                                                   assay = "MACS3_peaks",extend.upstream = 2000, extend.downstream = 1000))
+p.egr2.peaks <- CoveragePlot_ME(obj = CoveragePlot(int.samples.so.filt, region = "EGR2", 
+                                                   assay = "MACS3_peaks",extend.upstream = 2000, extend.downstream = 1000))
+p.egr3.peaks <- CoveragePlot_ME(obj = CoveragePlot(int.samples.so.filt, region = "EGR3", 
+                                                   assay = "MACS3_peaks",extend.upstream = 2000, extend.downstream = 1000))
+p.egr4.peaks <- CoveragePlot_ME(obj = CoveragePlot(int.samples.so.filt, region = "EGR4", 
+                                                   assay = "MACS3_peaks",extend.upstream = 2000, extend.downstream = 1000))
+pdf("figs/keep/aligned/04_atac-peaks.pdf", width = 30, height = 10)
+wrap_plots(p.ccl4.peaks,p.npas4.peaks, p.egr1.peaks,p.egr2.peaks,p.egr3.peaks,p.egr4.peaks,
+           nrow = 1)
 dev.off()
 ################################################################################
 ################################################################################

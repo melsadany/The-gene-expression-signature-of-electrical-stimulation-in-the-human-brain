@@ -129,3 +129,39 @@ ggsave2("figs/keep/motif-enrichment-top-6.png", height = 5.5, width = 8)
 ################################################################################
 ################################################################################
 ################################################################################
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+## PART 2
+## figure out the genes with enriched motifs
+registerDoMC(6)
+genes.of.enriched.motifs <- foreach(ii=1:nrow(bs.cell.count),.combine = rbind)%dopar%{
+  cell.n <- bs.cell.count$RNA_predicted_cluster[ii]
+  cell.so <- subset(atac.pb.so, cells = colnames(atac.pb.so)[grepl(cell.n,colnames(atac.pb.so))])
+  da.peaks <- FindMarkers(cell.so,ident.1 = paste0(cell.n, "__stim"), ident.2 = paste0(cell.n, "__nostim"),
+                          only.pos = T, test.use = "LR",latent.vars = "nCount_pb_MACS3_peaks")
+  top.da.peaks <- rownames(da.peaks[da.peaks$p_val < 0.005 & da.peaks$pct.1 > 0.2, ])
+  enriched.motifs <- FindMotifs(cell.so, features = top.da.peak) %>%
+    filter(p.adjust<0.05)%>%mutate(RNA_predicted_cluster = cell.n)
+  
+  ## find peaks of these enriched motifs
+  motif.data <- GetMotifData(cell.so, assay = "ATAC_USE", slot = "positions")%>%as.data.frame()%>%
+    filter(group_name %in% enriched.motifs$motif) %>%
+    mutate(region=paste(seqnames,start,end,sep="-"))
+  
+  genes.near.motifs <- ClosestFeature(cell.so, regions = StringToGRanges(unique(motif.data$region)))
+  genes.of.egr.motifs <- motif.data %>% filter(group_name==enriched.motifs$motif[enriched.motifs$motif.name %in% paste0("EGR",c(1:4))]) %>%
+    inner_join(genes.near.motifs %>% filter(abs(distance)<=2000) %>% rename(region=query_region)) %>%
+    inner_join(enriched.motifs%>%rename(group_name=motif))
+  return(genes.of.egr.motifs)
+}
+
+
+
+
+
+################################################################################
+################################################################################
+################################################################################
